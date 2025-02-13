@@ -1,12 +1,12 @@
 #include "game.h"
-#include <iostream>
 #include "SDL.h"
+#include <iostream>
 
 Game::Game(std::size_t grid_width, std::size_t grid_height)
-    : snake(grid_width, grid_height),
-      engine(dev()),
+    : snake(grid_width, grid_height), engine(dev()),
       random_w(0, static_cast<int>(grid_width - 1)),
-      random_h(0, static_cast<int>(grid_height - 1)), score(0), name_("") {
+      random_h(0, static_cast<int>(grid_height - 1)), state(State::kRunning),
+      score(0), name_("") {
   PlaceFood();
 }
 
@@ -17,14 +17,19 @@ void Game::Run(Controller const &controller, Renderer &renderer,
   Uint32 frame_end;
   Uint32 frame_duration;
   int frame_count = 0;
-  bool running = true;
 
-  while (running) {
+  while (state != State::kExit) {
+    // We continue looping as long as the game is running.
+
     frame_start = SDL_GetTicks();
 
     // Input, Update, Render - the main game loop.
-    controller.HandleInput(running, snake);
-    Update(running);
+    controller.HandleInput(state, snake);
+
+    // Update only if the game is running
+    if (state == State::kRunning) {
+      Update(state);
+    }
     renderer.Render(snake, food);
 
     frame_end = SDL_GetTicks();
@@ -65,10 +70,9 @@ void Game::PlaceFood() {
   }
 }
 
-void Game::Update(bool& running) {
-  if (!snake.alive) 
-  {
-    running = false;
+void Game::Update(State &state) {
+  if (!snake.alive) {
+    state = State::kExit;
     return;
   }
 
@@ -90,34 +94,28 @@ void Game::Update(bool& running) {
 int Game::GetScore() const { return score; }
 int Game::GetSize() const { return snake.size; }
 
-void Game::Register()
-{
+void Game::Register() {
   std::cout << "Snake Game\n\n";
   std::cout << "Please Enter Your Name: ";
   std::getline(std::cin, name_);
 
   std::ifstream file = std::ifstream(name_ + ".txt");
 
-  if(file.is_open())
-  {
+  if (file.is_open()) {
     // Get HighScore and Welcome Message
     std::string highscore;
 
     // Get High Score
     int highscore_int = 0;
-    while(std::getline(file, highscore))
-    {
-      if(highscore_int < std::stoi(highscore))
-      {
+    while (std::getline(file, highscore)) {
+      if (highscore_int < std::stoi(highscore)) {
         highscore_int = std::stoi(highscore);
       }
     }
-    
+
     std::cout << "Welcome Back " << name_ << "\n";
     std::cout << "High Score: " << highscore_int << "\n";
-  }
-  else 
-  {
+  } else {
     // Create a new file
     std::ofstream file = std::ofstream(name_ + ".txt");
 
@@ -125,8 +123,7 @@ void Game::Register()
   }
 }
 
-void Game::SaveScore()
-{
+void Game::SaveScore() {
   std::ofstream file;
   file.open(name_ + ".txt", std::ios::app);
   file << score << std::endl;

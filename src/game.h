@@ -7,6 +7,7 @@
 #include "controller.h"
 #include "renderer.h"
 #include "snake.h"
+#include "type.hpp"
 
 class Game {
  public:
@@ -19,6 +20,7 @@ class Game {
   void Register();
   void SaveScore();
 
+
  private:
   Snake snake;
   SDL_Point food;
@@ -29,11 +31,12 @@ class Game {
   std::uniform_int_distribution<int> random_w;
   std::uniform_int_distribution<int> random_h;
 
+  State state;
   int score;
   std::string name_;
 
   void PlaceFood();
-  void Update(bool& running);
+  void Update(State& running);
 };
 
 #endif
