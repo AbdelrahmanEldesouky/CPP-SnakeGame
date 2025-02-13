@@ -2,6 +2,7 @@
 #define GAME_H
 
 #include <random>
+#include <fstream>
 #include "SDL.h"
 #include "controller.h"
 #include "renderer.h"
@@ -15,9 +16,14 @@ class Game {
   int GetScore() const;
   int GetSize() const;
 
+  void Register();
+  void SaveScore();
+
  private:
   Snake snake;
   SDL_Point food;
+
+  std::string name_;
 
   std::random_device dev;
   std::mt19937 engine;

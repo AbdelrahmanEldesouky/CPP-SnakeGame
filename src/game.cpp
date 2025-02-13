@@ -85,3 +85,45 @@ void Game::Update() {
 
 int Game::GetScore() const { return score; }
 int Game::GetSize() const { return snake.size; }
+
+void Game::Register()
+{
+  std::cout << "Snake Game\n\n";
+  std::cout << "Please Enter Your Name: ";
+  std::getline(std::cin, name_);
+
+  std::ifstream file = std::ifstream(name_ + ".txt");
+
+  if(file.is_open())
+  {
+    // Get HighScore and Welcome Message
+    std::string highscore;
+
+    // Get High Score
+    int highscore_int = 0;
+    while(std::getline(file, highscore))
+    {
+      if(highscore_int < std::stoi(highscore))
+      {
+        highscore_int = std::stoi(highscore);
+      }
+    }
+    
+    std::cout << "Welcome Back " << name_ << "\n";
+    std::cout << "High Score: " << highscore_int << "\n";
+  }
+  else 
+  {
+    // Create a new file
+    std::ofstream file = std::ofstream(name_ + ".txt");
+
+    std::cout << "Welcome " << name_ << "\n";
+  }
+}
+
+void Game::SaveScore()
+{
+  std::ofstream file;
+  file.open(name_ + ".txt", std::ios::app);
+  file << score << std::endl;
+}
