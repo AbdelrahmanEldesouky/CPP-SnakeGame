@@ -55,11 +55,19 @@ void Snake::UpdateBody(SDL_Point &current_head_cell, SDL_Point &prev_head_cell) 
     size++;
   }
 
-  // Check if the snake has died.
+  // Check if the snake has died (hit body).
   for (auto const &item : body) {
     if (current_head_cell.x == item.x && current_head_cell.y == item.y) {
       alive = false;
+      std::cout << "Snake has died of self-collision" << std::endl;
+      break;
     }
+  }
+
+  // Check if the snake has died (hit wall).
+  if (ObstacleCell(current_head_cell.x, current_head_cell.y)) {
+    alive = false;
+    std::cout << "Snake has died of wall collision" << std::endl;
   }
 }
 
@@ -74,6 +82,13 @@ bool Snake::SnakeCell(int x, int y) {
     if (x == item.x && y == item.y) {
       return true;
     }
+  }
+  return false;
+}
+
+bool Snake::ObstacleCell(int x, int y) {
+  if (x == 0 || x == grid_width - 1 || y == 0 || y == grid_height - 1) {
+    return true;
   }
   return false;
 }

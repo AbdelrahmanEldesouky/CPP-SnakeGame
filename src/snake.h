@@ -18,6 +18,7 @@ class Snake {
 
   void GrowBody();
   bool SnakeCell(int x, int y);
+  bool ObstacleCell(int x, int y);
 
   Direction direction = Direction::kUp;
 
