@@ -5,10 +5,8 @@
 Renderer::Renderer(const std::size_t screen_width,
                    const std::size_t screen_height,
                    const std::size_t grid_width, const std::size_t grid_height)
-    : screen_width(screen_width),
-      screen_height(screen_height),
-      grid_width(grid_width),
-      grid_height(grid_height) {
+    : screen_width(screen_width), screen_height(screen_height),
+      grid_width(grid_width), grid_height(grid_height) {
   // Initialize SDL
   if (SDL_Init(SDL_INIT_VIDEO) < 0) {
     std::cerr << "SDL could not initialize.\n";
@@ -38,7 +36,75 @@ Renderer::~Renderer() {
   SDL_Quit();
 }
 
-void Renderer::Render(const std::shared_ptr<Snake> & snake, const std::shared_ptr<Food> &food) {
+Renderer::Renderer(const Renderer &other) {
+  screen_width = other.screen_width;
+  screen_height = other.screen_height;
+  grid_width = other.grid_width;
+  grid_height = other.grid_height;
+  sdl_window = other.sdl_window;
+  sdl_renderer = other.sdl_renderer;
+}
+
+Renderer &Renderer::operator=(const Renderer &other) {
+  if(this == &other) {
+    return *this;
+  }
+  screen_width = other.screen_width;
+  screen_height = other.screen_height;
+  grid_width = other.grid_width;
+  grid_height = other.grid_height;
+  sdl_window = other.sdl_window;
+  sdl_renderer = other.sdl_renderer;
+  return *this;
+}
+
+Renderer::Renderer(Renderer &&other) noexcept {
+  sdl_window = other.sdl_window;
+  sdl_renderer = other.sdl_renderer;
+  screen_width = other.screen_width;
+  screen_height = other.screen_height;
+  grid_width = other.grid_width;
+  grid_height = other.grid_height;
+
+  other.sdl_window = nullptr;
+  other.sdl_renderer = nullptr;
+  other.screen_width = 0;
+  other.screen_height = 0;
+  other.grid_width = 0;
+  other.grid_height = 0;
+}
+
+Renderer &Renderer::operator=(Renderer &&other) noexcept {
+  if(this == &other) {
+    return *this;
+  }
+
+  if (sdl_renderer) {
+    SDL_DestroyRenderer(sdl_renderer);
+  }
+  if (sdl_window) {
+    SDL_DestroyWindow(sdl_window);
+  }
+  
+  sdl_window = other.sdl_window;
+  sdl_renderer = other.sdl_renderer;
+  screen_width = other.screen_width;
+  screen_height = other.screen_height;
+  grid_width = other.grid_width;
+  grid_height = other.grid_height;
+
+  other.sdl_window = nullptr;
+  other.sdl_renderer = nullptr;
+  other.screen_width = 0;
+  other.screen_height = 0;
+  other.grid_width = 0;
+  other.grid_height = 0;
+  
+  return *this;
+}
+
+void Renderer::Render(const std::shared_ptr<Snake> &snake,
+                      const std::shared_ptr<Food> &food) {
   SDL_Rect block;
   block.w = screen_width / grid_width;
   block.h = screen_height / grid_height;
@@ -93,6 +159,7 @@ void Renderer::Render(const std::shared_ptr<Snake> & snake, const std::shared_pt
 }
 
 void Renderer::UpdateWindowTitle(int score, int fps) {
-  std::string title{"Snake Score: " + std::to_string(score) + " FPS: " + std::to_string(fps)};
+  std::string title{"Snake Score: " + std::to_string(score) +
+                    " FPS: " + std::to_string(fps)};
   SDL_SetWindowTitle(sdl_window, title.c_str());
 }
