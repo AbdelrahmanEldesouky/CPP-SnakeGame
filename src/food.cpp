@@ -9,7 +9,7 @@ Food::Food(std::size_t grid_width, std::size_t grid_height)
 int Food::GetX() const { return x_; }
 int Food::GetY() const { return y_; }
 
-void Food::PlaceFood(const Snake &snake)
+void Food::PlaceFood(const std::shared_ptr<Snake> &snake)
 {
     int x_random, y_random;
     while (true)
@@ -18,7 +18,7 @@ void Food::PlaceFood(const Snake &snake)
         y_random = random_h(engine);
         // Check that the location is not occupied by a snake item before placing
         // food.
-        if (!snake.SnakeCell(x_random, y_random) && !snake.ObstacleCell(x_random, y_random))
+        if (!snake->SnakeCell(x_random, y_random) && !snake->ObstacleCell(x_random, y_random))
         {
             x_ = x_random;
             y_ = y_random;

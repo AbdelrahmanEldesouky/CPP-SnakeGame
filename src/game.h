@@ -5,6 +5,7 @@
 #include <thread>
 #include <mutex>
 #include <chrono>
+#include <memory>
 #include "SDL.h"
 #include "controller.h"
 #include "renderer.h"
@@ -25,8 +26,8 @@ class Game {
 
 
  private:
-  Snake snake;
-  Food food;
+ std::shared_ptr<Snake> snake;
+ std::shared_ptr<Food> food;
 
   State state;
   int score;

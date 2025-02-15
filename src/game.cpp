@@ -1,9 +1,10 @@
 #include "game.h"
 
 Game::Game(std::size_t grid_width, std::size_t grid_height)
-    : snake(grid_width, grid_height), food(grid_width, grid_height),
+    : snake(std::make_shared<Snake>(grid_width, grid_height)),
+      food(std::make_shared<Food>(grid_width, grid_height)),
       state(State::kRunning), score(0), name_(""), frame_count(0) {
-  food.PlaceFood(snake);
+  food->PlaceFood(snake);
 }
 
 void Game::Run(Controller const &controller, Renderer &renderer,
@@ -13,7 +14,8 @@ void Game::Run(Controller const &controller, Renderer &renderer,
   Uint32 frame_end;
   Uint32 frame_duration;
 
-  std::thread window_title_thread(&Game::UpdateWindowTitle, this, std::ref(renderer));
+  std::thread window_title_thread(&Game::UpdateWindowTitle, this,
+                                  std::ref(renderer));
 
   while (state != State::kExit) {
     // We continue looping as long as the game is running.
@@ -31,7 +33,8 @@ void Game::Run(Controller const &controller, Renderer &renderer,
     // Add unique lock to avoid race condition
     std::unique_lock<std::mutex> lock(renderer_mutex);
     renderer.Render(snake, food);
-    // Manually unlock here to allow other threads access to the renderer immediately.
+    // Manually unlock here to allow other threads access to the renderer
+    // immediately.
     lock.unlock();
 
     frame_end = SDL_GetTicks();
@@ -53,23 +56,23 @@ void Game::Run(Controller const &controller, Renderer &renderer,
 }
 
 void Game::Update(State &state) {
-  if (!snake.alive) {
+  if (!snake->alive) {
     state = State::kExit;
     return;
   }
 
-  snake.Update();
+  snake->Update();
 
-  int new_x = static_cast<int>(snake.head_x);
-  int new_y = static_cast<int>(snake.head_y);
+  int new_x = static_cast<int>(snake->head_x);
+  int new_y = static_cast<int>(snake->head_y);
 
   // Check if there's food over here
-  if (food.GetX() == new_x && food.GetY() == new_y) {
+  if (food->GetX() == new_x && food->GetY() == new_y) {
     score++;
-    food.PlaceFood(snake);
+    food->PlaceFood(snake);
     // Grow snake and increase speed.
-    snake.GrowBody();
-    snake.speed += 0.02;
+    snake->GrowBody();
+    snake->speed += 0.02;
   }
 }
 
@@ -83,7 +86,7 @@ void Game::UpdateWindowTitle(Renderer &renderer) {
 }
 
 int Game::GetScore() const { return score; }
-int Game::GetSize() const { return snake.size; }
+int Game::GetSize() const { return snake->size; }
 
 void Game::Register() {
   std::cout << "Snake Game\n\n";

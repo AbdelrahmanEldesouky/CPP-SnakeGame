@@ -4,6 +4,7 @@
 #include <iostream>
 #include <random>
 #include <chrono>
+#include <memory>
 #include "snake.h"
 #include "SDL.h"
 #include "type.hpp"
@@ -22,7 +23,7 @@ public:
     int GetX() const;
     int GetY() const;
 
-    void PlaceFood(const Snake &snake);
+    void PlaceFood(const std::shared_ptr<Snake> &snake);
     FoodType GetFood(SDL_Rect const &block) const;
 
 private:
