@@ -1,13 +1,8 @@
 #include "game.h"
-#include "SDL.h"
-#include <iostream>
 
 Game::Game(std::size_t grid_width, std::size_t grid_height)
-    : snake(grid_width, grid_height),
-      food(grid_width, grid_height),
-      state(State::kRunning),
-      score(0), name_("")
-{
+    : snake(grid_width, grid_height), food(grid_width, grid_height),
+      state(State::kRunning), score(0), name_(""), frame_count(0) {
   food.PlaceFood(snake);
 }
 
@@ -17,7 +12,8 @@ void Game::Run(Controller const &controller, Renderer &renderer,
   Uint32 frame_start;
   Uint32 frame_end;
   Uint32 frame_duration;
-  int frame_count = 0;
+
+  std::thread window_title_thread(&Game::UpdateWindowTitle, this, std::ref(renderer));
 
   while (state != State::kExit) {
     // We continue looping as long as the game is running.
@@ -31,7 +27,12 @@ void Game::Run(Controller const &controller, Renderer &renderer,
     if (state == State::kRunning) {
       Update(state);
     }
+
+    // Add unique lock to avoid race condition
+    std::unique_lock<std::mutex> lock(renderer_mutex);
     renderer.Render(snake, food);
+    // Manually unlock here to allow other threads access to the renderer immediately.
+    lock.unlock();
 
     frame_end = SDL_GetTicks();
 
@@ -40,13 +41,6 @@ void Game::Run(Controller const &controller, Renderer &renderer,
     frame_count++;
     frame_duration = frame_end - frame_start;
 
-    // After every second, update the window title.
-    if (frame_end - title_timestamp >= 1000) {
-      renderer.UpdateWindowTitle(score, frame_count);
-      frame_count = 0;
-      title_timestamp = frame_end;
-    }
-
     // If the time for this frame is too small (i.e. frame_duration is
     // smaller than the target ms_per_frame), delay the loop to
     // achieve the correct frame rate.
@@ -54,6 +48,8 @@ void Game::Run(Controller const &controller, Renderer &renderer,
       SDL_Delay(target_frame_duration - frame_duration);
     }
   }
+
+  window_title_thread.join();
 }
 
 void Game::Update(State &state) {
@@ -74,6 +70,15 @@ void Game::Update(State &state) {
     // Grow snake and increase speed.
     snake.GrowBody();
     snake.speed += 0.02;
+  }
+}
+
+void Game::UpdateWindowTitle(Renderer &renderer) {
+  while (state != State::kExit) {
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    const std::lock_guard<std::mutex> lock(renderer_mutex);
+    renderer.UpdateWindowTitle(score, frame_count);
+    frame_count = 0;
   }
 }
 

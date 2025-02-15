@@ -2,6 +2,9 @@
 #define GAME_H
 
 #include <fstream>
+#include <thread>
+#include <mutex>
+#include <chrono>
 #include "SDL.h"
 #include "controller.h"
 #include "renderer.h"
@@ -28,8 +31,12 @@ class Game {
   State state;
   int score;
   std::string name_;
+  int frame_count;
 
-  void Update(State& running);
+  std::mutex renderer_mutex;
+
+  void Update(State& state);
+  void UpdateWindowTitle(Renderer &renderer);
 };
 
 #endif
