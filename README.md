@@ -2,7 +2,7 @@
 
 This is a starter repo for the Capstone project in the [Udacity C++ Nanodegree Program](https://www.udacity.com/course/c-plus-plus-nanodegree--nd213). The code for this repo was inspired by [this](https://codereview.stackexchange.com/questions/212296/snake-game-in-c-with-sdl) excellent StackOverflow post and set of responses.
 
-<img src="snake_game.gif"/>
+<img src="modified_snake_game.gif"/>
 
 The Capstone Project gives you a chance to integrate what you've learned throughout this program. This project will become an important part of your portfolio to share with current and future colleagues and employers.
 
@@ -163,16 +163,31 @@ Below are the **new features** added along with the **files modified** and  **ex
   * ✅ Follows **Rule of 5** for proper resource management.
   * ✅ Ensures  **deep copies and proper object transfers**.
 
+#### 11. feat: add bonus food feature with timer, conditional variable, and rendering support
+
+* **Files Modified:** `food.h`, `food.cpp`, `renderer.h`, `renderer.cpp`, `game.h`, `game.cpp`
+* **Feature:** Integrates bonus food directly into the Food class with its own timer, conditional variable for periodic checks, and rendering logic.
+* **Implementation:**
+  * The **Food** class now manages both regular and bonus food.
+  * Added methods like `PlaceBonusFood()`, `StartBonusFoodTimer()`, and `ClearBonusFood()` to handle bonus food behavior.
+  * A dedicated thread runs a timer (15 seconds) that uses a **conditional variable** to wake up periodically and clear the bonus food if it is not collected.
+  * The renderer checks if bonus food is active and draws it (using a distinct gold color) on the screen.
+* **Rubric Criteria Addressed:**
+  * ✅ Encapsulates bonus food behavior within the Food class.
+  * ✅ Utilizes multi-threading and a conditional variable to manage asynchronous game events.
+  * ✅ Ensures proper rendering and collision detection for bonus food.
+  * ✅ Enhances the game with additional features while maintaining clean and modular code.
+
 ---
 
 ### Rubric Criteria Summary
 
-| **Category**                    | **Criteria Addressed**                                                                                                             |
-| ------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
-| **Loops, Functions, I/O**       | ✅ File I/O for high scores, ✅ Accepts and processes user input, ✅ Uses control structures (collision handling, pause state)           |
-| **Object-Oriented Programming** | ✅ Encapsulated Food class, ✅ Member initialization list, ✅ A* Algorithm class for AI pathfinding                                      |
-| **Memory Management**           | ✅ Used `std::shared_ptr`, ✅ Applied **Rule of 5** , ✅ Destructor ensures memory cleanup, ✅ Used **pass-by-reference** |
-| **Concurrency**                 | ✅ Multi-threaded window title update with `std::mutex`, ✅ Uses `std::unique_lock`for thread synchronization                        |
+| **Category**                    | **Criteria Addressed**                                                                                                                                                                                                                                |
+| ------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Loops, Functions, I/O**       | ✅ File I/O for high scores, ✅ Accepts and processes user input, ✅ Uses control structures (collision handling, pause state)                                                                                                                              |
+| **Object-Oriented Programming** | ✅ Encapsulated Food class, ✅ Member initialization list, ✅ A* Algorithm class for AI pathfinding                                                                                                                                                         |
+| **Memory Management**           | ✅ Used `std::shared_ptr`, ✅ Applied **Rule of 5** , ✅ Destructor ensures memory cleanup, ✅ Used **pass-by-reference**                                                                                                                    |
+| **Concurrency**                 | ✅ Uses multi-threading with multiple threads (e.g., window title update thread and bonus food timer thread), ✅ Uses `std::mutex` and `std::unique_lock` to protect shared data, ✅ Uses a `std::condition_variable` to synchronize thread execution |
 
 ## CC Attribution-ShareAlike 4.0 International
 

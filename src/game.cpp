@@ -4,6 +4,8 @@ Game::Game(std::size_t grid_width, std::size_t grid_height)
     : snake(std::make_shared<Snake>(grid_width, grid_height)),
       food(std::make_shared<Food>(grid_width, grid_height)),
       state(State::kRunning), score(0), name_(""), frame_count(0) {
+
+  // Place regular food on the grid
   food->PlaceFood(snake);
 }
 
@@ -66,13 +68,26 @@ void Game::Update(State &state) {
   int new_x = static_cast<int>(snake->head_x);
   int new_y = static_cast<int>(snake->head_y);
 
-  // Check if there's food over here
+  // Check collision with the regular food
   if (food->GetX() == new_x && food->GetY() == new_y) {
     score++;
     food->PlaceFood(snake);
     // Grow snake and increase speed.
     snake->GrowBody();
     snake->speed += 0.02;
+  }
+
+  // Trigger bonus food
+  if (!food->IsBonusActive() && score % 5 == 0) {
+    food->PlaceBonusFood(snake);
+    food->StartBonusFoodTimer();
+  }
+
+  // Check collision with the bonus food
+  if (food->IsBonusActive() && food->GetBonusX() == new_x &&
+      food->GetBonusY() == new_y) {
+    score += 5;
+    food->ClearBonusFood();
   }
 }
 

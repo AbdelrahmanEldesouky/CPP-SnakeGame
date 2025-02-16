@@ -113,11 +113,19 @@ void Renderer::Render(const std::shared_ptr<Snake> &snake,
   SDL_SetRenderDrawColor(sdl_renderer, 0x1E, 0x1E, 0x1E, 0xFF);
   SDL_RenderClear(sdl_renderer);
 
-  // Render food
+  // Render regular food (Color: Yellow)
   SDL_SetRenderDrawColor(sdl_renderer, 0xFF, 0xCC, 0x00, 0xFF);
   block.x = food->GetX() * block.w;
   block.y = food->GetY() * block.h;
   SDL_RenderFillRect(sdl_renderer, &block);
+
+  // Render bonus food (Color: Purple)
+  if (food->IsBonusActive()) {
+    SDL_SetRenderDrawColor(sdl_renderer, 0x94, 0x00, 0xD3, 0xFF);
+    block.x = food->GetBonusX() * block.w;
+    block.y = food->GetBonusY() * block.h;
+    SDL_RenderFillRect(sdl_renderer, &block);
+  }
 
   // Render Wall around window (Color light green)
   SDL_SetRenderDrawColor(sdl_renderer, 0x00, 0xFF, 0x00, 0xFF);
